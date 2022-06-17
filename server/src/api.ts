@@ -1,6 +1,6 @@
 
 const  express = require('express');
-import {Request,Response} from 'express'
+import {NextFunction, Request,Response} from 'express'
 
 
 export const app = express()
@@ -16,3 +16,22 @@ export const app = express()
     
 
  })
+
+ import { createStripeCheckoutSession } from './checkout';
+
+//  Checkouts
+ app.post(
+   '/checkouts/', runAsync(async({body}: Request,res:Response) =>{
+      res.send(
+         await createStripeCheckoutSession(body.line_items)
+      )
+   })
+ )
+
+//  Catch async errors when awaiting promises
+
+function runAsync(callback:Function){
+   return(req:Request,res:Response,next:NextFunction) => {
+      callback(req,res,next).catch(next);
+   }
+}

@@ -36,37 +36,26 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.app = void 0;
-var express = require('express');
-exports.app = express();
-exports.app.use(express.json());
-var cors = require('cors');
-exports.app.use(cors({ origin: true }));
-exports.app.post('/test', function (req, res) {
-    var amount = req.body.amount;
-    res.status(200).send({ with_tax: amount * 7 });
-});
-var checkout_1 = require("./checkout");
-//  Checkouts
-exports.app.post('/checkouts/', runAsync(function (_a, res) {
-    var body = _a.body;
-    return __awaiter(void 0, void 0, void 0, function () {
-        var _b, _c;
-        return __generator(this, function (_d) {
-            switch (_d.label) {
+exports.createStripeCheckoutSession = void 0;
+var _1 = require("./");
+function createStripeCheckoutSession(line_items) {
+    return __awaiter(this, void 0, void 0, function () {
+        var url, session;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
                 case 0:
-                    _c = (_b = res).send;
-                    return [4 /*yield*/, checkout_1.createStripeCheckoutSession(body.line_items)];
+                    url = process.env.WEBAPP_URL;
+                    return [4 /*yield*/, _1.stripe.checkout.sessions.create({
+                            payment_method_types: ['card'],
+                            line_items: line_items,
+                            success_url: url + "/success?session_id={CHECKOUT_SESSION_ID}",
+                            cancel_url: url + "/failed"
+                        })];
                 case 1:
-                    _c.apply(_b, [_d.sent()]);
-                    return [2 /*return*/];
+                    session = _a.sent();
+                    return [2 /*return*/, session];
             }
         });
     });
-}));
-//  Catch async errors when awaiting promises
-function runAsync(callback) {
-    return function (req, res, next) {
-        callback(req, res, next)["catch"](next);
-    };
 }
+exports.createStripeCheckoutSession = createStripeCheckoutSession;
